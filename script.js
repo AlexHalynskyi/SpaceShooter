@@ -18,3 +18,41 @@ spaceship.x = app.screen.width / 2;
 spaceship.y = app.screen.height - 100;
 spaceship.scale.set(0.2);
 app.stage.addChild(spaceship);
+
+document.addEventListener('keydown', onKeyDown);
+document.addEventListener('keyup', onKeyUp);
+
+let leftKeyDown = false;
+let rightKeyDown = false;
+
+function onKeyDown(event) {
+    if (event.key === "ArrowLeft") {
+        leftKeyDown = true;
+    } else if (event.key === "ArrowRight") {
+        rightKeyDown = true;
+    }
+}
+
+function onKeyUp(event) {
+    if (event.key === "ArrowLeft") {
+        leftKeyDown = false;
+    } else if (event.key === "ArrowRight") {
+        rightKeyDown = false;
+    }
+}
+
+app.ticker.add(() => {
+    const speed = 10;
+    if (leftKeyDown) {
+        spaceship.x -= speed;
+        if (spaceship.x < spaceship.width / 2) {
+            spaceship.x = spaceship.width / 2;
+        }
+    }
+    if (rightKeyDown) {
+        spaceship.x += speed;
+        if (spaceship.x > app.screen.width - spaceship.width / 2) {
+            spaceship.x = app.screen.width - spaceship.width / 2;
+        }
+    }
+});
