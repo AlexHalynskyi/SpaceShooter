@@ -1,0 +1,23 @@
+{
+  "name": "spaceshooter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "live-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexHalynskyi/SpaceShooter.git"
+  },
+  "author": "Alex Halynskyi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexHalynskyi/SpaceShooter/issues"
+  },
+  "homepage": "https://github.com/AlexHalynskyi/SpaceShooter#readme",
+  "dependencies": {
+    "pixi.js": "^7.4.0"
+  }
+}
