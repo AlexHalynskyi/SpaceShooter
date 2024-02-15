@@ -1,4 +1,4 @@
-const { Application, Sprite, Texture, Graphics } = PIXI;
+const { Application, Sprite, Texture, Graphics, Text, TextStyle } = PIXI;
 
 const app = new Application({
     width: 1280,
@@ -25,6 +25,15 @@ document.addEventListener('keyup', onKeyUp);
 let leftKeyDown = false;
 let rightKeyDown = false;
 const bullets = [];
+let bulletsLeft = 10;
+
+const bulletCounter = new Text(`bullets: ${bulletsLeft}/10`, new TextStyle({
+    fontFamily: 'Arial',
+    fontSize: 30,
+    fill: 'red',
+}));
+bulletCounter.position.set(10, 10);
+app.stage.addChild(bulletCounter);
 
 function onKeyDown(event) {
     if (event.key === "ArrowLeft") {
@@ -40,7 +49,9 @@ function onKeyUp(event) {
     } else if (event.key === "ArrowRight") {
         rightKeyDown = false;
     } else if (event.code === "Space") {
-        shootBullet();
+        if (bulletsLeft > 0) {
+            shootBullet();
+        }
     }
 }
 
@@ -53,6 +64,8 @@ function shootBullet() {
     bullet.y = spaceship.y - spaceship.height / 2;
     app.stage.addChild(bullet);
     bullets.push(bullet);
+    bulletsLeft--;
+    bulletCounter.text = `bullets: ${bulletsLeft}/10`;
 }
 
 app.ticker.add(() => {
