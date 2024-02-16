@@ -7,6 +7,12 @@ const app = new Application({
 
 document.body.appendChild(app.view);
 
+const textStyle = new TextStyle({
+    fontFamily: 'Arial',
+    fontSize: 30,
+    fill: 'red',
+});
+
 const background = Sprite.from('assets/background.jpg');
 background.width = app.screen.width;
 background.height = app.screen.height;
@@ -29,6 +35,7 @@ let rightKeyDown = false;
 const bullets = [];
 const asteroids = [];
 let bulletsLeft = 10;
+let timeLeft = 60;
 
 for (let i = 0; i < 7; i++) {
     const asteroid = new Sprite(asteroidTexture);
@@ -41,13 +48,13 @@ for (let i = 0; i < 7; i++) {
     asteroids.push(asteroid);
 }
 
-const bulletCounter = new Text(`bullets: ${bulletsLeft}/10`, new TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 30,
-    fill: 'red',
-}));
+const bulletCounter = new Text(`bullets: ${bulletsLeft}/10`, textStyle);
 bulletCounter.position.set(10, 10);
 app.stage.addChild(bulletCounter);
+
+const timerText = new Text(`${timeLeft}`, textStyle);
+timerText.position.set(app.screen.width - 50, 10);
+app.stage.addChild(timerText);
 
 function onKeyDown(event) {
     if (event.key === "ArrowLeft") {
@@ -81,6 +88,15 @@ function shootBullet() {
     bulletsLeft--;
     bulletCounter.text = `bullets: ${bulletsLeft}/10`;
 }
+
+const timerInterval = setInterval(() => {
+    timeLeft--;
+    if (timeLeft >= 0) {
+        timerText.text = `${timeLeft}`;
+    } else {
+        clearInterval(timerInterval);
+    }
+}, 1000);
 
 app.ticker.add(() => {
     const speed = 10;
