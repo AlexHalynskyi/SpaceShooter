@@ -13,6 +13,12 @@ const textStyle = new TextStyle({
     fill: 'red',
 });
 
+const resultTextStyle = new TextStyle({
+    fontFamily: 'Arial',
+    fontSize: 50,
+    fill: 'red',
+});
+
 const background = Sprite.from('assets/background.jpg');
 background.width = app.screen.width;
 background.height = app.screen.height;
@@ -55,6 +61,12 @@ app.stage.addChild(bulletCounter);
 const timerText = new Text(`${timeLeft}`, textStyle);
 timerText.position.set(app.screen.width - 50, 10);
 app.stage.addChild(timerText);
+
+const loseText = new Text("YOU LOSE", resultTextStyle);
+loseText.position.set(app.screen.width / 2 - loseText.width / 2, app.screen.height / 2 - loseText.height / 2);
+
+const winText = new Text("YOU WIN", resultTextStyle);
+winText.position.set(app.screen.width / 2 - winText.width / 2, app.screen.height / 2 - winText.height / 2);
 
 function onKeyDown(event) {
     if (event.key === "ArrowLeft") {
@@ -131,6 +143,14 @@ app.ticker.add(() => {
             }
         });
     });
+
+    if ((bulletsLeft === 0 || timeLeft === 0) && asteroids.length > 0 && bullets.length === 0) {
+        handleEndGame(loseText);
+    }
+
+    if (asteroids.length === 0) {
+        handleEndGame(winText);
+    }
 });
 
 function testHitAsteroid(bullet, asteroid) {
@@ -146,3 +166,9 @@ function testHitAsteroid(bullet, asteroid) {
 
     return distanceSquared < (circleRadius * circleRadius);
 }
+
+function handleEndGame(endText) {
+    app.stage.addChild(endText);
+    timeLeft = 0;
+    bulletsLeft = 0;
+} 
