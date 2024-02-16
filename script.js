@@ -19,13 +19,27 @@ spaceship.y = app.screen.height - 100;
 spaceship.scale.set(0.2);
 app.stage.addChild(spaceship);
 
+const asteroidTexture = Texture.from('assets/asteroid.png');
+
 document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
 
 let leftKeyDown = false;
 let rightKeyDown = false;
 const bullets = [];
+const asteroids = [];
 let bulletsLeft = 10;
+
+for (let i = 0; i < 7; i++) {
+    const asteroid = new Sprite(asteroidTexture);
+    asteroid.anchor.set(0.5);
+    asteroid.x = Math.random() * app.screen.width;
+    asteroid.y = Math.random() * 200 + 100;
+    asteroid.scale.set(0.15);
+    asteroid.rotation = Math.random() * Math.PI * 2;
+    app.stage.addChild(asteroid);
+    asteroids.push(asteroid);
+}
 
 const bulletCounter = new Text(`bullets: ${bulletsLeft}/10`, new TextStyle({
     fontFamily: 'Arial',
@@ -90,4 +104,29 @@ app.ticker.add(() => {
             bullets.splice(bullets.indexOf(bullet), 1);
         }
     });
+
+    bullets.forEach(bullet => {
+        asteroids.forEach(asteroid => {
+            if (testHitAsteroid(bullet, asteroid)) {
+                app.stage.removeChild(bullet);
+                app.stage.removeChild(asteroid);
+                bullets.splice(bullets.indexOf(bullet), 1);
+                asteroids.splice(asteroids.indexOf(asteroid), 1);
+            }
+        });
+    });
 });
+
+function testHitAsteroid(bullet, asteroid) {
+    const circle = asteroid.getBounds();
+
+    const circleX = circle.x + circle.width / 2;
+    const circleY = circle.y + circle.height / 2;
+    const circleRadius = Math.max(circle.width, circle.height) / 2 - 25;
+
+    const distanceX = bullet.x - circleX;
+    const distanceY = bullet.y - circleY;
+    const distanceSquared = distanceX * distanceX + distanceY * distanceY;
+
+    return distanceSquared < (circleRadius * circleRadius);
+}
