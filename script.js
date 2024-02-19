@@ -37,6 +37,12 @@ app.stage.addChild(spaceship);
 
 const asteroidTexture = Texture.from('assets/asteroid.png');
 
+const boss = Sprite.from('assets/boss.png');
+boss.anchor.set(0.5);
+boss.x = app.screen.width / 2;
+boss.y = 150;
+boss.scale.set(0.05);
+
 document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
 
@@ -70,6 +76,9 @@ app.stage.addChild(timerText);
 const levelText = new Text(`level: ${currentLevel}`, textStyle);
 levelText.position.set(app.screen.width - 250, 10);
 app.stage.addChild(levelText);
+
+const bossHealthText = new Text(`boss HP: 100`, textStyle);
+bossHealthText.position.set(app.screen.width - 600, 10);
 
 const loseText = new Text("YOU LOSE", resultTextStyle);
 loseText.position.set(app.screen.width / 2 - loseText.width / 2, app.screen.height / 2 - loseText.height / 2);
@@ -143,14 +152,28 @@ app.ticker.add(() => {
     });
 
     bullets.forEach(bullet => {
-        asteroids.forEach(asteroid => {
-            if (testHitAsteroid(bullet, asteroid)) {
+        if (currentLevel === 1) {
+            asteroids.forEach(asteroid => {
+                if (testHitAsteroid(bullet, asteroid)) {
+                    app.stage.removeChild(bullet);
+                    app.stage.removeChild(asteroid);
+                    bullets.splice(bullets.indexOf(bullet), 1);
+                    asteroids.splice(asteroids.indexOf(asteroid), 1);
+                }
+            });
+        }
+
+        if (currentLevel === 2) {
+            if (testHitSpaceship(bullet, boss)) {
+                bossHealth -= 25;
                 app.stage.removeChild(bullet);
-                app.stage.removeChild(asteroid);
                 bullets.splice(bullets.indexOf(bullet), 1);
-                asteroids.splice(asteroids.indexOf(asteroid), 1);
+                bossHealthText.text = `boss HP: ${bossHealth}`;
+                if (bossHealth <= 0) {
+                    handleEndGame(winText);
+                }
             }
-        });
+        }
     });
 
     if (currentLevel === 1) {
@@ -164,7 +187,7 @@ app.ticker.add(() => {
     }
 
     if (currentLevel === 2) {
-        if ((bulletsLeft === 0 || timeLeft === 0) && bullets.length === 0) {
+        if ((bulletsLeft === 0 || timeLeft === 0) && bullets.length === 0 && bossHealth > 0) {
             handleEndGame(loseText);
         }
     }
@@ -198,6 +221,7 @@ let bossSpeed = 5;
 let bossBulletCounter = 0;
 const bossBullets = [];
 const bossBulletSpeed = 10;
+let bossHealth = 100;
 
 function startSecondLevel() {
     currentLevel++;
@@ -206,12 +230,8 @@ function startSecondLevel() {
     bulletCounter.text = `bullets: ${bulletsLeft}/10`;
     timeLeft = 60;
 
-    const boss = Sprite.from('assets/boss.png');
-    boss.anchor.set(0.5);
-    boss.x = app.screen.width / 2;
-    boss.y = 100;
-    boss.scale.set(0.05);
     app.stage.addChild(boss);
+    app.stage.addChild(bossHealthText);
 
     app.ticker.add(() => {
         if (bossMovementCounter === 0) {
@@ -228,7 +248,7 @@ function startSecondLevel() {
         }
 
         if (bossBulletCounter === 120) {
-            shootBossBullet(boss);
+            shootBossBullet();
             bossBulletCounter = 0;
         } else {
             bossBulletCounter++;
@@ -248,7 +268,7 @@ function startSecondLevel() {
     });
 }
 
-function shootBossBullet(boss) {
+function shootBossBullet() {
     const bullet = new Graphics();
     bullet.beginFill(0xFF0000);
     bullet.drawRect(0, 0, 5, 10);
