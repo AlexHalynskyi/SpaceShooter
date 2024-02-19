@@ -164,7 +164,9 @@ app.ticker.add(() => {
     }
 
     if (currentLevel === 2) {
-        //
+        if ((bulletsLeft === 0 || timeLeft === 0) && bullets.length === 0) {
+            handleEndGame(loseText);
+        }
     }
 });
 
@@ -186,11 +188,13 @@ function handleEndGame(endText) {
     app.stage.addChild(endText);
     timeLeft = 0;
     bulletsLeft = 0;
+    bossSpeed = 0;
+    bossBulletCounter = 121;
 }
 
 let moveDirection = 1
 let bossMovementCounter = 60;
-const bossSpeed = 5;
+let bossSpeed = 5;
 let bossBulletCounter = 0;
 const bossBullets = [];
 const bossBulletSpeed = 10;
@@ -236,6 +240,10 @@ function startSecondLevel() {
                 app.stage.removeChild(bullet);
                 bossBullets.splice(bossBullets.indexOf(bullet), 1);
             }
+
+            if (testHitSpaceship(bullet, spaceship)) {
+                handleEndGame(loseText);
+            }
         });
     });
 }
@@ -249,4 +257,15 @@ function shootBossBullet(boss) {
     bullet.y = boss.y + boss.height / 2;
     app.stage.addChild(bullet);
     bossBullets.push(bullet);
+}
+
+function testHitSpaceship(bullet, spaceship) {
+    const spaceshipBounds = spaceship.getBounds();
+
+    return (
+        spaceshipBounds.x < bullet.x + bullet.width &&
+        spaceshipBounds.x + spaceshipBounds.width > bullet.x &&
+        spaceshipBounds.y < bullet.y + bullet.height &&
+        spaceshipBounds.y + spaceshipBounds.height > bullet.y
+    );
 }
