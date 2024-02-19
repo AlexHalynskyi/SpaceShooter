@@ -40,6 +40,7 @@ const asteroidTexture = Texture.from('assets/asteroid.png');
 document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
 
+let currentLevel = 1;
 let leftKeyDown = false;
 let rightKeyDown = false;
 const bullets = [];
@@ -65,6 +66,10 @@ app.stage.addChild(bulletCounter);
 const timerText = new Text(`${timeLeft}`, textStyle);
 timerText.position.set(app.screen.width - 50, 10);
 app.stage.addChild(timerText);
+
+const levelText = new Text(`level: ${currentLevel}`, textStyle);
+levelText.position.set(app.screen.width - 250, 10);
+app.stage.addChild(levelText);
 
 const loseText = new Text("YOU LOSE", resultTextStyle);
 loseText.position.set(app.screen.width / 2 - loseText.width / 2, app.screen.height / 2 - loseText.height / 2);
@@ -148,12 +153,18 @@ app.ticker.add(() => {
         });
     });
 
-    if ((bulletsLeft === 0 || timeLeft === 0) && asteroids.length > 0 && bullets.length === 0) {
-        handleEndGame(loseText);
+    if (currentLevel === 1) {
+        if ((bulletsLeft === 0 || timeLeft === 0) && asteroids.length > 0 && bullets.length === 0) {
+            handleEndGame(loseText);
+        }
+    
+        if (asteroids.length === 0) {
+            startSecondLevel();
+        }
     }
 
-    if (asteroids.length === 0) {
-        handleEndGame(winText);
+    if (currentLevel === 2) {
+        //
     }
 });
 
@@ -175,4 +186,67 @@ function handleEndGame(endText) {
     app.stage.addChild(endText);
     timeLeft = 0;
     bulletsLeft = 0;
-} 
+}
+
+let moveDirection = 1
+let bossMovementCounter = 60;
+const bossSpeed = 5;
+let bossBulletCounter = 0;
+const bossBullets = [];
+const bossBulletSpeed = 10;
+
+function startSecondLevel() {
+    currentLevel++;
+    levelText.text = `level: ${currentLevel}`;
+    bulletsLeft = 10;
+    bulletCounter.text = `bullets: ${bulletsLeft}/10`;
+    timeLeft = 60;
+
+    const boss = Sprite.from('assets/boss.png');
+    boss.anchor.set(0.5);
+    boss.x = app.screen.width / 2;
+    boss.y = 100;
+    boss.scale.set(0.05);
+    app.stage.addChild(boss);
+
+    app.ticker.add(() => {
+        if (bossMovementCounter === 0) {
+            bossMovementCounter = 60;
+            moveDirection = Math.random() < 0.5 ? -1 : 1;
+        } else {
+            boss.x += moveDirection * bossSpeed;
+            if (boss.x < boss.width / 2) {
+                boss.x = boss.width / 2;
+            } else if (boss.x > app.screen.width - boss.width / 2) {
+                boss.x = app.screen.width - boss.width / 2;
+            }
+            bossMovementCounter--;
+        }
+
+        if (bossBulletCounter === 120) {
+            shootBossBullet(boss);
+            bossBulletCounter = 0;
+        } else {
+            bossBulletCounter++;
+        }
+
+        bossBullets.forEach(bullet => {
+            bullet.y += bossBulletSpeed;
+            if (bullet.y > app.screen.height) {
+                app.stage.removeChild(bullet);
+                bossBullets.splice(bossBullets.indexOf(bullet), 1);
+            }
+        });
+    });
+}
+
+function shootBossBullet(boss) {
+    const bullet = new Graphics();
+    bullet.beginFill(0xFF0000);
+    bullet.drawRect(0, 0, 5, 10);
+    bullet.endFill();
+    bullet.x = boss.x;
+    bullet.y = boss.y + boss.height / 2;
+    app.stage.addChild(bullet);
+    bossBullets.push(bullet);
+}
