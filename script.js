@@ -5,7 +5,11 @@ const app = new Application({
     height: 720,
 });
 
-document.body.appendChild(app.view);
+document.getElementById('appContainer').appendChild(app.view);
+
+document.getElementById('reloadButton').addEventListener('click', () => {
+    location.reload();
+});
 
 const textStyle = new TextStyle({
     fontFamily: 'Arial',
